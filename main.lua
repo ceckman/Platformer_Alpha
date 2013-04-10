@@ -56,6 +56,11 @@ function love.load()
 	objects.block3.body = love.physics.newBody(world, 600, 468, "kinematic")
 	objects.block3.shape = love.physics.newRectangleShape(0, 0, 400, 100)
 	objects.block3.fixture = love.physics.newFixture(objects.block3.body, objects.block3.shape, 5) -- A higher density gives it more mass.
+	
+	objects.block4 = {}
+	objects.block4.body = love.physics.newBody(world, 0, 0, "kinematic")
+	objects.block4.shape = love.physics.newRectangleShape(0, 0, 3000, 100)
+	objects.block4.fixture = love.physics.newFixture(objects.block4.body, objects.block4.shape, 5)
 
 	--initial graphics setup
 	love.graphics.setBackgroundColor(104, 0, 248) --set the background color to a nice blue
@@ -119,6 +124,7 @@ function love.draw()
 	love.graphics.polygon("fill", objects.block1.body:getWorldPoints(objects.block1.shape:getPoints()))
 	love.graphics.polygon("fill", objects.block2.body:getWorldPoints(objects.block2.shape:getPoints()))
 	love.graphics.polygon("fill", objects.block3.body:getWorldPoints(objects.block3.shape:getPoints()))
+	love.graphics.polygon("fill", objects.block4.body:getWorldPoints(objects.block4.shape:getPoints()))
 	
 	love.graphics.printf(text, 0, 0, 800)
 end
