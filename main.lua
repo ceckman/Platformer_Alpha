@@ -17,6 +17,7 @@ function love.load()
 	objects.pig = {}
 	objects.pig.body = love.physics.newBody(world, 1024/2, 768-100, "dynamic")
 	objects.pig.image = imagePig
+	--[[ 
 	objects.pig.shapes = {
 			love.physics.newPolygonShape(  12.00, -40.50  ,  15.00, -30.50  ,  9.00, -32.50  ,  9.00, -38.50  ,  10.00, -40.50 ),
 			love.physics.newPolygonShape(  -32.00, -11.50  ,  -20.00, -16.50  ,  -30.00, -7.50  ,  -32.00, -8.50 ),
@@ -39,6 +40,11 @@ function love.load()
 	for i=1, #objects.pig.shapes do
       objects.pig.fixtures[i] = love.physics.newFixture(objects.pig.body, objects.pig.shapes[i],2)
     end
+	--]]
+	
+	objects.pig.shape = love.physics.newRectangleShape(76, 81) --make a rectangle with a width of 1024 and a height of 50
+	objects.pig.fixture = love.physics.newFixture(objects.pig.body, objects.pig.shape); --attach shape to body
+
 	
 	objects.pig.body:setFixedRotation(true)
 	
@@ -58,9 +64,14 @@ function love.load()
 	objects.block3.fixture = love.physics.newFixture(objects.block3.body, objects.block3.shape, 5) -- A higher density gives it more mass.
 	
 	objects.block4 = {}
-	objects.block4.body = love.physics.newBody(world, 0, 0, "kinematic")
-	objects.block4.shape = love.physics.newRectangleShape(0, 0, 3000, 100)
+	objects.block4.body = love.physics.newBody(world, 1, 300, "kinematic")
+	objects.block4.shape = love.physics.newRectangleShape(0, 0, 500, 100)
 	objects.block4.fixture = love.physics.newFixture(objects.block4.body, objects.block4.shape, 5)
+	
+	objects.block5 = {}
+	objects.block5.body = love.physics.newBody(world, 0,0, "kinematic")
+	objects.block5.shape = love.physics.newRectangleShape(0, 0, 1000, 100)
+	objects.block5.fixture = love.physics.newFixture(objects.block5.body, objects.block5.shape, 5)
 
 	--initial graphics setup
 	love.graphics.setBackgroundColor(104, 0, 248) --set the background color to a nice blue
@@ -72,7 +83,7 @@ change = 0
 
 function love.update(dt)
 	world:update(dt)
-
+	change = yc-objects.pig.body:getY()
 	if love.keyboard.isDown("right") then --press the right arrow key to push the ball to the right
 		objects.pig.body:applyForce(1000, 0)
 		end
@@ -87,7 +98,7 @@ function love.update(dt)
 		if yc==-9000 then 
 		    yc = objects.pig.body:getY() 
 		end
-		change = yc-objects.pig.body:getY()
+
 		yc = objects.pig.body:getY()
 		
 		fx, fy = objects.pig.body:getLinearVelocity()
@@ -97,8 +108,8 @@ function love.update(dt)
 		if fy>=0 then
 			if fy<.0001 then
 				if change == 0 then
-					objects.pig.body:applyForce(0, -1000)
-					objects.pig.body:applyLinearImpulse(0, -400) 
+					--objects.pig.body:applyForce(0, -1000)
+					objects.pig.body:applyLinearImpulse(0, -300) 
 				end
 			end
 		end
@@ -125,6 +136,7 @@ function love.draw()
 	love.graphics.polygon("fill", objects.block2.body:getWorldPoints(objects.block2.shape:getPoints()))
 	love.graphics.polygon("fill", objects.block3.body:getWorldPoints(objects.block3.shape:getPoints()))
 	love.graphics.polygon("fill", objects.block4.body:getWorldPoints(objects.block4.shape:getPoints()))
+	love.graphics.polygon("fill", objects.block5.body:getWorldPoints(objects.block5.shape:getPoints()))
 	
 	love.graphics.printf(text, 0, 0, 800)
 end
