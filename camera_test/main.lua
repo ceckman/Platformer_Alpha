@@ -40,15 +40,6 @@ function love.load()
 	objects.block3.shape = love.physics.newRectangleShape(0, 0, 400, 100)
 	objects.block3.fixture = love.physics.newFixture(objects.block3.body, objects.block3.shape, 5) -- A higher density gives it more mass.
 	
-	objects.block4 = {}
-	objects.block4.body = love.physics.newBody(world, 1, 300, "kinematic")
-	objects.block4.shape = love.physics.newRectangleShape(0, 0, 500, 100)
-	objects.block4.fixture = love.physics.newFixture(objects.block4.body, objects.block4.shape, 5)
-	
-	objects.block5 = {}
-	objects.block5.body = love.physics.newBody(world, 0,0, "kinematic")
-	objects.block5.shape = love.physics.newRectangleShape(0, 0, 1000, 100)
-	objects.block5.fixture = love.physics.newFixture(objects.block5.body, objects.block5.shape, 5)
 
 	--initial graphics setup
 	love.graphics.setBackgroundColor(104, 0, 248) --set the background color to a nice blue
@@ -59,13 +50,10 @@ yc = -9000
 change = 0
 
 function love.update(dt)
-	cam:attach()
+	cam:lookAt(objects.pig.body:getX(), objects.pig.body:getY())
 	world:update(dt)
-	cam:detach()
 	
 	change = yc-objects.pig.body:getY()
-	
-    cam:move(10,10)
 	
 	if love.keyboard.isDown("right") then --press the right arrow key to push the ball to the right
 		objects.pig.body:applyForce(1000, 0)
@@ -96,16 +84,16 @@ function love.update(dt)
 				end
 			end
 		end
-		
-		if checker then
+	end
+	if checker then
 			text = objects.pig.body:getX() .. " " .. objects.pig.body:getY()
 		else
 			text = " "
-		end
 	end
 end
 
 function love.draw()
+	cam:attach()
 	love.graphics.setColor(72, 160, 14) -- set the drawing color to green for the ground
 	love.graphics.polygon("fill", objects.ground.body:getWorldPoints(objects.ground.shape:getPoints())) -- draw a "filled in" polygon using the ground's coordinates
 
@@ -118,10 +106,10 @@ function love.draw()
 	love.graphics.polygon("fill", objects.block1.body:getWorldPoints(objects.block1.shape:getPoints()))
 	love.graphics.polygon("fill", objects.block2.body:getWorldPoints(objects.block2.shape:getPoints()))
 	love.graphics.polygon("fill", objects.block3.body:getWorldPoints(objects.block3.shape:getPoints()))
-	love.graphics.polygon("fill", objects.block4.body:getWorldPoints(objects.block4.shape:getPoints()))
-	love.graphics.polygon("fill", objects.block5.body:getWorldPoints(objects.block5.shape:getPoints()))
 	
 	love.graphics.printf(text, 0, 0, 800)
+	
+	cam:detach()
 end
 
 function love.keypressed(key, u)
@@ -129,5 +117,8 @@ function love.keypressed(key, u)
    if key == "f12" then --set to whatever key you want to use
       if(checker==true) then checker = false 
 	  else checker = true end
+   end
+   if key == "escape" then
+	  love.event.push("quit")
    end
 end
