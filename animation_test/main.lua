@@ -2,9 +2,9 @@ require "AnAL"
 
 --code found at https://love2d.org/wiki/AnAL
 function love.load()
-   local img  = love.graphics.newImage("robin.png")
+   local img  = love.graphics.newImage("running.png")
    --image, frame width, frame height, fps
-   anim = newAnimation(img, 240, 314, 0.001, 0)
+   anim = newAnimation(img, 93, 75, .2, 0)
    --choose either loop, bounce, or once for setMode
    anim:setMode("loop")
 end
