@@ -6,7 +6,8 @@ function love.load()
 	world = love.physics.newWorld(0, 9.81*64, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
 	
 	world:setCallbacks(beginContact, endContact, preSolve, postSolve)
-
+	
+	background = love.graphics.newImage("bk1.png")
 	
 	objects = {} -- table to hold all our physical objects
 
@@ -36,23 +37,23 @@ function love.load()
 	objects.block3.fixture = love.physics.newFixture(objects.block3.body, objects.block3.shape, 5) -- A higher density gives it more mass.
 	
 	objects.block4 = {}
-	objects.block4.body = love.physics.newBody(world, 0, 0, "kinematic")
-	objects.block4.shape = love.physics.newRectangleShape(0, 0, 100, 10000)
+	objects.block4.body = love.physics.newBody(world, -300, 0, "kinematic")
+	objects.block4.shape = love.physics.newRectangleShape(0, 0, 600, 1000)
 	objects.block4.fixture = love.physics.newFixture(objects.block4.body, objects.block4.shape, 5)
 	
 	objects.block5 = {}
-	objects.block5.body = love.physics.newBody(world, 0,0, "kinematic")
-	objects.block5.shape = love.physics.newRectangleShape(0, 0, 10000, 100)
+	objects.block5.body = love.physics.newBody(world, 500,-300, "kinematic")
+	objects.block5.shape = love.physics.newRectangleShape(0, 0, 1000, 600)
 	objects.block5.fixture = love.physics.newFixture(objects.block5.body, objects.block5.shape, 5)
 	
 	objects.block6 = {}
-	objects.block6.body = love.physics.newBody(world, 0,400, "kinematic")
-	objects.block6.shape = love.physics.newRectangleShape(0, 0, 10000, 100)
+	objects.block6.body = love.physics.newBody(world, 500,400, "kinematic")
+	objects.block6.shape = love.physics.newRectangleShape(0, 0, 1000, 100)
 	objects.block6.fixture = love.physics.newFixture(objects.block6.body, objects.block6.shape, 5)
 	
 	objects.block7 = {}
 	objects.block7.body = love.physics.newBody(world, 950, 300, "kinematic")
-	objects.block7.shape = love.physics.newRectangleShape(0, 0, 200, 200)
+	objects.block7.shape = love.physics.newRectangleShape(0, 0, 102, 200)
 	objects.block7.fixture = love.physics.newFixture(objects.block7.body, objects.block7.shape, 2)
 
 	--initial graphics setup
@@ -68,6 +69,9 @@ didit = true
 function love.update(dt)
 	cam:lookAt(objects.pig.body:getX(), objects.pig.body:getY())
 	world:update(dt)
+	
+	pigx = objects.pig.body:getX()
+	pigy = objects.pig.body:getY()
 	
 	change = yc-objects.pig.body:getY()
 	
@@ -122,6 +126,8 @@ end
 
 function love.draw()
 	cam:attach()
+	
+	love.graphics.draw(background, 0, 0)
 
 	love.graphics.setColor(72, 160, 14) -- set the drawing color to green for the ground
 	
@@ -158,5 +164,6 @@ function love.keypressed(key, u)
    end
    if key == "r" then
 	  objects.pig.body:setPosition(200, 200)
+	  objects.pig.body:setLinearVelocity(0,0)
    end
 end
