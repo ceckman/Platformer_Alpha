@@ -13,17 +13,9 @@ function love.load()
    imageStanding = love.graphics.newImage("standingbetter.png")
    imageStandingLeft = love.graphics.newImage("standingleft.png")
    
-   
    anim2 = newAnimation(img2, 93, 75, .2, 0)
-<<<<<<< HEAD:main.lua
    anim2:setMode("loop")
 
-=======
-   --choose either loop, bounce, or once for setMode
-   anim2:setMode("loop")
-
-
->>>>>>> v.84:Platformer/main.lua
 	text = " "
 	love.physics.setMeter(100) --the height of a meter our worlds will be 64px
 	world = love.physics.newWorld(0, 9.81*64, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
@@ -33,21 +25,11 @@ function love.load()
 	
 	objects = {} -- table to hold all our physical objects
 
-<<<<<<< HEAD:main.lua
 	objects.player = {}
 	objects.player.body = love.physics.newBody(world, 80, 65, "dynamic")
 	objects.player.shape = love.physics.newRectangleShape(80, 65) --make a rectangle with a width of 1024 and a height of 50
 	objects.player.fixture = love.physics.newFixture(objects.player.body, objects.player.shape); --attach shape to body
 	objects.player.body:setFixedRotation(true)
-=======
-	--imagePig = love.graphics.newImage("queen_pig.png")
-	objects.pig = {}
-	objects.pig.body = love.physics.newBody(world, 80, 65, "dynamic")
-	--objects.pig.image = imagePig
-	objects.pig.shape = love.physics.newRectangleShape(80, 65) --make a rectangle with a width of 1024 and a height of 50
-	objects.pig.fixture = love.physics.newFixture(objects.pig.body, objects.pig.shape); --attach shape to body
-	objects.pig.body:setFixedRotation(true)
->>>>>>> v.84:Platformer/main.lua
 	
 	cam = Camera(objects.player.body:getX(), objects.player.body:getY())
 	
@@ -115,7 +97,6 @@ function love.update(dt)
 	moving = false
 	walking = false
 
-<<<<<<< HEAD:main.lua
 	cam:lookAt(objects.player.body:getX(), objects.player.body:getY())
 	world:update(dt)
 	
@@ -123,15 +104,6 @@ function love.update(dt)
 	
 	if love.keyboard.isDown("right") then
 		objects.player.body:applyForce(1000, 0)
-=======
-	cam:lookAt(objects.pig.body:getX(), objects.pig.body:getY())
-	world:update(dt)
-	
-	change = yc-objects.pig.body:getY()
-	
-	if love.keyboard.isDown("right") then
-		objects.pig.body:applyForce(1000, 0)
->>>>>>> v.84:Platformer/main.lua
 		right = true
 		left = false
 		anim:update(dt) 
@@ -149,26 +121,14 @@ function love.update(dt)
 		end
 		walking=true
 	end
-<<<<<<< HEAD:main.lua
 		
 	if love.keyboard.isDown("left") then 
 		objects.player.body:applyForce(-1000, 0)
 		right = false
 		left = true
 		anim2:update(dt) 
-		
-=======
-		
-	if love.keyboard.isDown("left") then 
-		objects.pig.body:applyForce(-1000, 0)
-		right = false
-		left = true
-		anim2:update(dt) 
-		
->>>>>>> v.84:Platformer/main.lua
 		moving=true
 		standing=false
-		
 		if air==true then 
 			moving=false
 			if jump==true then
@@ -184,13 +144,7 @@ function love.update(dt)
 		fx = 0
 		fy = 0
 		if yc==-9000 then 
-<<<<<<< HEAD:main.lua
 		    yc = objects.player.body:getY() 
-=======
-		    yc = objects.pig.body:getY() 
-			
-		
->>>>>>> v.84:Platformer/main.lua
 		end
 
 		yc = objects.player.body:getY()
@@ -203,13 +157,8 @@ function love.update(dt)
 				jump = false
 				up = false
 				down = true
-<<<<<<< HEAD:main.lua
 				objects.player.body:applyLinearImpulse(0, 10)
 			end
-=======
-				objects.pig.body:applyLinearImpulse(0, 10)
-			end end
->>>>>>> v.84:Platformer/main.lua
 		end
 	end
 		
@@ -239,7 +188,6 @@ function love.update(dt)
 		moving=true
 		standing=false
 		walking=false
-<<<<<<< HEAD:main.lua
 	end
 	
 	if moving==false then 
@@ -250,18 +198,6 @@ function love.update(dt)
 	
 	
 	fx, fy = objects.player.body:getLinearVelocity()
-=======
-	end
-	
-	if moving==false then 
-		if walking==false then
-		standing=true 
-		end
-	end
-	
-	
-	fx, fy = objects.pig.body:getLinearVelocity()
->>>>>>> v.84:Platformer/main.lua
 		if fy>=0 then
 			if fy<.0001 then
 				if jump==false then
@@ -273,53 +209,28 @@ function love.update(dt)
 end
 
 function love.draw()
-
-	
-<<<<<<< HEAD:main.lua
-=======
-
 	cam:attach()
 
->>>>>>> v.84:Platformer/main.lua
 	love.graphics.setColor(72, 160, 14) -- set the drawing color to green for the ground
-	love.graphics.setColor(255,255,255)
-<<<<<<< HEAD:main.lua
 	
+	love.graphics.setColor(255,255,255)
+
 	if right==true then 
 		if walking then
 			anim:draw(objects.player.body:getX()-45, objects.player.body:getY()-40) 
-=======
-	--love.graphics.draw(imagePig, objects.pig.body:getX(), objects.pig.body:getY(), objects.pig.body:getAngle() , 1, 1, imagePig:getWidth()/2, imagePig:getHeight()/2)
-	
-	
-	if right==true then 
-		if walking then
-			anim:draw(objects.pig.body:getX()-45, objects.pig.body:getY()-40) 
->>>>>>> v.84:Platformer/main.lua
 		end
 	end
 	if left ==true then 
 		if walking then
-<<<<<<< HEAD:main.lua
 			anim2:draw(objects.player.body:getX()-45, objects.player.body:getY()-40) 
-=======
-			anim2:draw(objects.pig.body:getX()-45, objects.pig.body:getY()-40) 
->>>>>>> v.84:Platformer/main.lua
 		end
 	end
 	if standing==true then 	
 		if right == true then
-<<<<<<< HEAD:main.lua
 			love.graphics.draw(imageStanding, objects.player.body:getX(), objects.player.body:getY(), objects.player.body:getAngle() , 1, 1, imageStanding:getWidth()/2, imageStanding:getHeight()/2+5) 
 		end
 		if left == true then
 			love.graphics.draw(imageStandingLeft, objects.player.body:getX(), objects.player.body:getY(), objects.player.body:getAngle() , 1, 1, imageStandingLeft:getWidth()/2, imageStandingLeft:getHeight()/2+5)
-=======
-			love.graphics.draw(imageStanding, objects.pig.body:getX(), objects.pig.body:getY(), objects.pig.body:getAngle() , 1, 1, imageStanding:getWidth()/2, imageStanding:getHeight()/2+5) 
-		end
-		if left == true then
-			love.graphics.draw(imageStandingLeft, objects.pig.body:getX(), objects.pig.body:getY(), objects.pig.body:getAngle() , 1, 1, imageStandingLeft:getWidth()/2, imageStandingLeft:getHeight()/2+5)
->>>>>>> v.84:Platformer/main.lua
 		end
 	end
 	love.graphics.setColor(193, 47, 14)
@@ -356,47 +267,3 @@ function love.keypressed(key, u)
 	  objects.player.body:setLinearVelocity(0,0)
    end
 end
-<<<<<<< HEAD:main.lua
-=======
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
->>>>>>> v.84:Platformer/main.lua
