@@ -1,25 +1,38 @@
+require "AnAL"
 Camera = require "camera"
 
 function love.load()
+
+	local img  = love.graphics.newImage("running.png")
+	local img2  = love.graphics.newImage("runningbetterleft.png")
+   --image, frame width, frame height, fps
+   anim = newAnimation(img, 93, 75, .2, 0)
+   --choose either loop, bounce, or once for setMode
+   anim:setMode("loop")
+   
+   imageStanding = love.graphics.newImage("standingbetter.png")
+   imageStandingLeft = love.graphics.newImage("standingleft.png")
+   
+   
+   anim2 = newAnimation(img2, 93, 75, .2, 0)
+   anim2:setMode("loop")
+
 	text = " "
 	love.physics.setMeter(100) --the height of a meter our worlds will be 64px
 	world = love.physics.newWorld(0, 9.81*64, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
 	
 	world:setCallbacks(beginContact, endContact, preSolve, postSolve)
-	
-	background = love.graphics.newImage("bk1.png")
+
 	
 	objects = {} -- table to hold all our physical objects
 
-	imagePig = love.graphics.newImage("queen_pig.png")
-	objects.pig = {}
-	objects.pig.body = love.physics.newBody(world, 200, 200, "dynamic")
-	objects.pig.image = imagePig
-	objects.pig.shape = love.physics.newRectangleShape(76, 81) --make a rectangle with a width of 1024 and a height of 50
-	objects.pig.fixture = love.physics.newFixture(objects.pig.body, objects.pig.shape); --attach shape to body
-	objects.pig.body:setFixedRotation(true)
+	objects.player = {}
+	objects.player.body = love.physics.newBody(world, 80, 65, "dynamic")
+	objects.player.shape = love.physics.newRectangleShape(80, 65) --make a rectangle with a width of 1024 and a height of 50
+	objects.player.fixture = love.physics.newFixture(objects.player.body, objects.player.shape); --attach shape to body
+	objects.player.body:setFixedRotation(true)
 	
-	cam = Camera(objects.pig.body:getX(), objects.pig.body:getY())
+	cam = Camera(objects.player.body:getX(), objects.player.body:getY())
 	
 	objects.block1 = {}
 	objects.block1.body = love.physics.newBody(world, 0, 350, "kinematic")
@@ -42,8 +55,8 @@ function love.load()
 	objects.block4.fixture = love.physics.newFixture(objects.block4.body, objects.block4.shape, 5)
 	
 	objects.block5 = {}
-	objects.block5.body = love.physics.newBody(world, 500,-300, "kinematic")
-	objects.block5.shape = love.physics.newRectangleShape(0, 0, 1000, 600)
+	objects.block5.body = love.physics.newBody(world, 800,-300, "kinematic")
+	objects.block5.shape = love.physics.newRectangleShape(0, 0, 2000, 600)
 	objects.block5.fixture = love.physics.newFixture(objects.block5.body, objects.block5.shape, 5)
 	
 	objects.block6 = {}
@@ -55,6 +68,11 @@ function love.load()
 	objects.block7.body = love.physics.newBody(world, 950, 300, "kinematic")
 	objects.block7.shape = love.physics.newRectangleShape(0, 0, 102, 200)
 	objects.block7.fixture = love.physics.newFixture(objects.block7.body, objects.block7.shape, 2)
+	
+	objects.block8 = {}
+	objects.block8.body = love.physics.newBody(world, 1200, 1000, "kinematic")
+	objects.block8.shape = love.physics.newRectangleShape(0, 0, 200, 1200)
+	objects.block8.fixture = love.physics.newFixture(objects.block8.body, objects.block8.shape, 2)
 
 	--initial graphics setup
 	love.graphics.setBackgroundColor(104, 0, 248) --set the background color to a nice blue
@@ -64,76 +82,159 @@ end
 yc = -9000
 change = 0
 jump = false
+jumping = false
 didit = true
+left = false
+right = false
+standing = true
+air = false
+up = false
+mid = false
+down = false
+walking= false
 
 function love.update(dt)
-	cam:lookAt(objects.pig.body:getX(), objects.pig.body:getY())
+
+	moving = false
+	walking = false
+
+	cam:lookAt(objects.player.body:getX(), objects.player.body:getY())
 	world:update(dt)
 	
-	pigx = objects.pig.body:getX()
-	pigy = objects.pig.body:getY()
+	change = yc-objects.player.body:getY()
 	
-	change = yc-objects.pig.body:getY()
-	
-	if love.keyboard.isDown("right") then --press the right arrow key to push the ball to the right
-		objects.pig.body:applyForce(1000, 0)
-		end
+	if love.keyboard.isDown("right") then
+		objects.player.body:applyForce(1000, 0)
+		right = true
+		left = false
+		anim:update(dt) 
 		
-	if love.keyboard.isDown("left") then --press the left arrow key to push the ball to the left
-		objects.pig.body:applyForce(-1000, 0)
-		end
+		moving=true
+		standing=false
 		
-	if love.keyboard.isDown("up") then --press the up arrow key to set the ball in the air
+		if air==true then 
+			moving=false
+			if jump==true then
+				up = true
+			else
+				down = true
+			end
+		end
+		walking=true
+	end
+		
+	if love.keyboard.isDown("left") then 
+		objects.player.body:applyForce(-1000, 0)
+		right = false
+		left = true
+		anim2:update(dt) 
+		
+		moving=true
+		standing=false
+		
+		if air==true then 
+			moving=false
+			if jump==true then
+				up = true
+			else
+				down = true
+			end
+		end
+		walking=true
+	end
+		
+	if love.keyboard.isDown("up") then 
 		fx = 0
 		fy = 0
 		if yc==-9000 then 
-		    yc = objects.pig.body:getY() 
+		    yc = objects.player.body:getY() 
 		end
 
-		yc = objects.pig.body:getY()
+		yc = objects.player.body:getY()
 		
-		fx, fy = objects.pig.body:getLinearVelocity()
+		fx, fy = objects.player.body:getLinearVelocity()
 		
 		if jump then
 			if fy>=0 then if fy<.0001 then
 				didit = true
 				jump = false
-				objects.pig.body:applyLinearImpulse(0, 10)
-			end end
+				up = false
+				down = true
+				objects.player.body:applyLinearImpulse(0, 10)
+			end
 		end
+	end
 		
-		fx, fy = objects.pig.body:getLinearVelocity()
+		fx, fy = objects.player.body:getLinearVelocity()
 		
 		if jump==false then
 			if fy>=0 then
 				if fy<.0001 then
 					if change == 0 then
-						objects.pig.body:applyLinearImpulse(0, -300) 
+						objects.player.body:applyLinearImpulse(0, -300) 
 						didit = false
 						jump = true
+						
+						up = true
+						down = false
+						air=true
 					end
 				end
 			end
 		end
 		
 		if checker then
-			text = objects.pig.body:getX() .. " " .. objects.pig.body:getY() .. " " .. tostring(jump) .. " " .. tostring(didit)
+			text = objects.player.body:getX() .. " " .. objects.player.body:getY() .. " " .. tostring(jump) .. " " .. tostring(didit)
 		else
 			text = " "
 		end
+		moving=true
+		standing=false
+		walking=false
 	end
+	
+	if moving==false then 
+		if walking==false then
+		standing=true 
+		end
+	end
+	
+	
+	fx, fy = objects.player.body:getLinearVelocity()
+		if fy>=0 then
+			if fy<.0001 then
+				if jump==false then
+					air=false
+				end
+			end
+		end
+	
 end
 
 function love.draw()
 	cam:attach()
 	
-	love.graphics.draw(background, 0, 0)
-
 	love.graphics.setColor(72, 160, 14) -- set the drawing color to green for the ground
-	
 	love.graphics.setColor(255,255,255)
-	love.graphics.draw(imagePig, objects.pig.body:getX(), objects.pig.body:getY(), objects.pig.body:getAngle() , 1, 1, imagePig:getWidth()/2, imagePig:getHeight()/2)
 	
+	if right==true then 
+		if walking then
+			anim:draw(objects.player.body:getX()-45, objects.player.body:getY()-40) 
+		end
+	end
+	if left ==true then 
+		if walking then
+			anim2:draw(objects.player.body:getX()-45, objects.player.body:getY()-40) 
+		end
+	end
+	if standing==true then 	
+		if right == true then
+			love.graphics.draw(imageStanding, objects.player.body:getX(), objects.player.body:getY(), objects.player.body:getAngle() , 1, 1, imageStanding:getWidth()/2, imageStanding:getHeight()/2+5) 
+		end
+		if left == true then
+			love.graphics.draw(imageStandingLeft, objects.player.body:getX(), objects.player.body:getY(), objects.player.body:getAngle() , 1, 1, imageStandingLeft:getWidth()/2, imageStandingLeft:getHeight()/2+5)
+		end
+	end
 	love.graphics.setColor(193, 47, 14)
 	
 	love.graphics.setColor(50, 50, 50) -- set the drawing color to grey for the blocks
@@ -147,6 +248,7 @@ function love.draw()
 	love.graphics.polygon("fill", objects.block5.body:getWorldPoints(objects.block5.shape:getPoints()))
 	love.graphics.polygon("fill", objects.block6.body:getWorldPoints(objects.block6.shape:getPoints()))
 	love.graphics.polygon("fill", objects.block7.body:getWorldPoints(objects.block7.shape:getPoints()))
+	love.graphics.polygon("fill", objects.block8.body:getWorldPoints(objects.block8.shape:getPoints()))
 	
 	love.graphics.printf(text, 0, 0, 800)
 	
@@ -163,7 +265,7 @@ function love.keypressed(key, u)
 	  love.event.push("quit")
    end
    if key == "r" then
-	  objects.pig.body:setPosition(200, 200)
-	  objects.pig.body:setLinearVelocity(0,0)
+	  objects.player.body:setPosition(200, 200)
+	  objects.player.body:setLinearVelocity(0,0)
    end
 end
