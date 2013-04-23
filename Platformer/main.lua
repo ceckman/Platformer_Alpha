@@ -1,9 +1,66 @@
-require "AnAL"
-require "TEsound"
-Camera = require "camera"
+require "lua/AnAL"
+require "lua/TEsound"
+Camera = require "lua/camera"
+Gamestate = require "lua/gamestate"
+Menu = require 'lua/menu'
+
+--Create our gamestates (ie levels, menu)
+local menu = {}
+local game = {}
 
 function love.load()
+	Gamestate.registerEvents() -- so state:update() will get called
+    Gamestate.switch(menu)
+end
 
+function menu:init()
+   testmenu = Menu.new()
+   testmenu:addItem{
+      name = 'Start Game',
+      action = function()
+         Gamestate.switch(game)
+      end
+   }
+   testmenu:addItem{
+      name = 'Options',
+      action = function()
+         -- do something
+      end
+   }
+   testmenu:addItem{
+      name = 'Quit',
+      action = function()
+         love.event.push('q')
+      end
+   }
+end
+function menu:update(dt)
+   testmenu:update(dt)
+end
+
+function menu:draw()
+   testmenu:draw(10, 10)
+end
+
+function menu:keypressed(key)
+   testmenu:keypressed(key)
+end
+
+yc = -9000
+change = 0
+jump = false
+jumping = false
+left = false
+right = false
+standing = true
+air = false
+up = false
+mid = false
+down = false
+walking= false
+first = true
+
+function game:init()
 	local img  = love.graphics.newImage("MAFRE/running.png")
 	local img2  = love.graphics.newImage("MAFRE/runningbetterleft.png")
 	bk = love.graphics.newImage("level1/bk1.png")
@@ -122,22 +179,7 @@ function love.load()
 	love.graphics.setMode(1024, 768, false, true, 0) --set the window dimensions to 1024 by 768
 end
 
-yc = -9000
-change = 0
-jump = false
-jumping = false
-left = false
-right = false
-standing = true
-air = false
-up = false
-mid = false
-down = false
-walking= false
-first = true
-
-function love.update(dt)
-
+function game:update(dt)
 	moving = false
 	walking = false
 
@@ -301,7 +343,7 @@ function love.update(dt)
 	
 end
 
-function love.draw()
+function game:draw()
 
 	cam:attach()
 
@@ -383,7 +425,7 @@ function love.draw()
 	cam:detach()
 end
 
-function love.keypressed(key, u)
+function game:keypressed(key, u)
    --Debug
    if key == "f12" then --set to whatever key you want to use
       if(checker==true) then checker = false 

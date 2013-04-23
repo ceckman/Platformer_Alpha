@@ -29,6 +29,10 @@ function game:draw()
     Entities.draw()
 end
 ]]--
+function love.load()
+	Gamestate.registerEvents() -- so state:update() will get called
+    Gamestate.switch(menu)
+end
 
 function menu:init()
    testmenu = Menu.new()
