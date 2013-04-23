@@ -14,6 +14,7 @@ function love.load()
 end
 
 function menu:init()
+   m_bk = "menu/m_bk.png"
    testmenu = Menu.new()
    testmenu:addItem{
       name = 'Start Game',
@@ -30,7 +31,7 @@ function menu:init()
    testmenu:addItem{
       name = 'Quit',
       action = function()
-         love.event.push('q')
+         love.event.push('quit')
       end
    }
 end
@@ -39,7 +40,10 @@ function menu:update(dt)
 end
 
 function menu:draw()
-   testmenu:draw(10, 10)
+   love.graphics.draw(m_bk, 512, 384)
+   testmenu:draw(250, 250)
+   love.graphics.setColor(255, 0, 0, 255)
+   love.graphics.print("This lame example is twice as big.", 250, 100, 0, 2, 2)
 end
 
 function menu:keypressed(key)
