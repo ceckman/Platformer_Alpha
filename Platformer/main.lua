@@ -14,18 +14,20 @@ function love.load()
 end
 
 function menu:init()
-   m_bk = "menu/m_bk.png"
+   TEsound.playLooping("menu/maintheme.mp3", "main", 0.3)
+   mbk = love.graphics.newImage("menu/m_bk.jpg")
    testmenu = Menu.new()
    testmenu:addItem{
       name = 'Start Game',
       action = function()
+		 TEsound.stop("main")
          Gamestate.switch(game)
       end
    }
    testmenu:addItem{
       name = 'Options',
       action = function()
-         -- do something
+         --nothing doing
       end
    }
    testmenu:addItem{
@@ -33,17 +35,18 @@ function menu:init()
       action = function()
          love.event.push('quit')
       end
-   }
+	}
+   love.graphics.setMode(1024, 768, false, true, 0) --set the window dimensions to 1024 by 768
 end
 function menu:update(dt)
    testmenu:update(dt)
 end
 
 function menu:draw()
-   love.graphics.draw(m_bk, 512, 384)
-   testmenu:draw(250, 250)
+   love.graphics.draw(mbk, 0, 0)
    love.graphics.setColor(255, 0, 0, 255)
-   love.graphics.print("This lame example is twice as big.", 250, 100, 0, 2, 2)
+   love.graphics.print("PLATFORMER ALPHA", 250, 100, 0, 2, 2)
+   testmenu:draw(250, 250)
 end
 
 function menu:keypressed(key)
