@@ -3,6 +3,7 @@ require "lua/TEsound"
 Camera = require "lua/camera"
 Gamestate = require "lua/gamestate"
 Menu = require 'lua/menu'
+Timer = require "lua/timer"
 
 --Create our gamestates (ie levels, menu)
 local menu = {}
@@ -14,7 +15,7 @@ function love.load()
 end
 
 function menu:init()
-   TEsound.playLooping("menu/maintheme.mp3", "main", 0.3)
+   TEsound.playLooping("menu/maintheme.mp3", "main")
    mbk = love.graphics.newImage("menu/m_bk.jpg")
    testmenu = Menu.new()
    testmenu:addItem{
@@ -66,10 +67,15 @@ mid = false
 down = false
 walking= false
 first = true
+dead = false
+bup = false
+bup2 = false
+bup3 = false
 
 function game:init()
 	local img  = love.graphics.newImage("MAFRE/running.png")
 	local img2  = love.graphics.newImage("MAFRE/runningbetterleft.png")
+	local death = love.graphics.newImage("MAFRE/dying.png")
 	bk = love.graphics.newImage("level1/bk1.png")
    --image, frame width, frame height, fps
    anim = newAnimation(img, 93, 75, .15, 0)
@@ -88,9 +94,12 @@ function game:init()
    
    anim2 = newAnimation(img2, 93, 75, .15, 0)
    anim2:setMode("loop")
+   
+   anim_dead = newAnimation(death, 110, 88, .1, 0)
+   anim_dead:setMode("loop")
 
 	--The background music, set to .3 its normal volume
-    TEsound.playLooping("level1/level1.mp3", 0.3)
+    TEsound.playLooping("level1/level1.mp3")
    
 	text = " "
 	love.physics.setMeter(100) --the height of a meter our worlds will be 64px
@@ -101,12 +110,10 @@ function game:init()
 	
 	objects = {} -- table to hold all our physical objects
 
-	--imagePig = love.graphics.newImage("queen_pig.png")
 	objects.player = {}
 	objects.player.body = love.physics.newBody(world, 40, 100, "dynamic")
-	--objects.player.image = imagePig
-	objects.player.shape = love.physics.newRectangleShape(80, 65) --make a rectangle with a width of 1024 and a height of 50
-	objects.player.fixture = love.physics.newFixture(objects.player.body, objects.player.shape); --attach shape to body
+	objects.player.shape = love.physics.newRectangleShape(80, 65)
+	objects.player.fixture = love.physics.newFixture(objects.player.body, objects.player.shape)
 	objects.player.body:setFixedRotation(true)
 	
 	cam = Camera(objects.player.body:getX(), objects.player.body:getY())
@@ -114,7 +121,7 @@ function game:init()
 	objects.block1 = {}
 	objects.block1.body = love.physics.newBody(world, 0, 350, "kinematic")
 	objects.block1.shape = love.physics.newRectangleShape(0, 0, 400, 100)
-	objects.block1.fixture = love.physics.newFixture(objects.block1.body, objects.block1.shape, 5) -- A higher density gives it more mass.
+	objects.block1.fixture = love.physics.newFixture(objects.block1.body, objects.block1.shape, 5)
 
 	objects.block2 = {}
 	objects.block2.body = love.physics.newBody(world, 600, 300, "kinematic")
@@ -122,9 +129,9 @@ function game:init()
 	objects.block2.fixture = love.physics.newFixture(objects.block2.body, objects.block2.shape, 2)
 	
 	objects.block3 = {}
-	objects.block3.body = love.physics.newBody(world, 500, 468, "kinematic")
-	objects.block3.shape = love.physics.newRectangleShape(0, 0, 100, 225)
-	objects.block3.fixture = love.physics.newFixture(objects.block3.body, objects.block3.shape, 5) -- A higher density gives it more mass.
+	objects.block3.body = love.physics.newBody(world, 500, 500, "kinematic")
+	objects.block3.shape = love.physics.newRectangleShape(0, 0, 100, 300)
+	objects.block3.fixture = love.physics.newFixture(objects.block3.body, objects.block3.shape, 5)
 	
 	objects.block4 = {}
 	objects.block4.body = love.physics.newBody(world, -300, 0, "kinematic")
@@ -157,22 +164,22 @@ function game:init()
 	objects.block9.fixture = love.physics.newFixture(objects.block9.body, objects.block9.shape, 2)
 	
 	objects.block10 = {}
-	objects.block10.body = love.physics.newBody(world, 700, 468, "kinematic")
-	objects.block10.shape = love.physics.newRectangleShape(0, 0, 100, 225)
+	objects.block10.body = love.physics.newBody(world, 700, 500, "kinematic")
+	objects.block10.shape = love.physics.newRectangleShape(0, 0, 100, 300)
 	objects.block10.fixture = love.physics.newFixture(objects.block10.body, objects.block10.shape, 5)
 	
 	objects.block11 = {}
-	objects.block11.body = love.physics.newBody(world, 900, 468, "kinematic")
-	objects.block11.shape = love.physics.newRectangleShape(0, 0, 100, 225)
+	objects.block11.body = love.physics.newBody(world, 900, 500, "kinematic")
+	objects.block11.shape = love.physics.newRectangleShape(0, 0, 100, 300)
 	objects.block11.fixture = love.physics.newFixture(objects.block11.body, objects.block11.shape, 5)
 	
 	objects.block12 = {}
-	objects.block12.body = love.physics.newBody(world, 300, 468, "kinematic")
-	objects.block12.shape = love.physics.newRectangleShape(0, 0, 100, 225)
+	objects.block12.body = love.physics.newBody(world, 300, 500, "kinematic")
+	objects.block12.shape = love.physics.newRectangleShape(0, 0, 100, 300)
 	objects.block12.fixture = love.physics.newFixture(objects.block12.body, objects.block12.shape, 5)
 	
 	objects.block13 = {}
-	objects.block13.body = love.physics.newBody(world, 50, 650, "kinematic")
+	objects.block13.body = love.physics.newBody(world, 0, 650, "kinematic")
 	objects.block13.shape = love.physics.newRectangleShape(0, 0, 200, 50)
 	objects.block13.fixture = love.physics.newFixture(objects.block13.body, objects.block13.shape, 5)
 	
@@ -180,6 +187,48 @@ function game:init()
 	objects.block14.body = love.physics.newBody(world, -500, 0, "kinematic")
 	objects.block14.shape = love.physics.newRectangleShape(0, 0, 300, 2000)
 	objects.block14.fixture = love.physics.newFixture(objects.block14.body, objects.block14.shape, 5)
+	
+	objects.block15 = {}
+	objects.block15.body = love.physics.newBody(world, 50, 975, "kinematic")
+	objects.block15.shape = love.physics.newRectangleShape(0, 0, 300, 50)
+	objects.block15.fixture = love.physics.newFixture(objects.block15.body, objects.block15.shape, 5)
+	
+	objects.block16 = {}
+	objects.block16.body = love.physics.newBody(world, -80, 900, "kinematic")
+	objects.block16.shape = love.physics.newRectangleShape(0, 0, 50, 200)
+	objects.block16.fixture = love.physics.newFixture(objects.block16.body, objects.block16.shape, 5)
+	
+	objects.block17 = {}
+	objects.block17.body = love.physics.newBody(world, -300, 1300, "kinematic")
+	objects.block17.shape = love.physics.newRectangleShape(0, 0, 200, 50)
+	objects.block17.fixture = love.physics.newFixture(objects.block17.body, objects.block17.shape, 5)
+	
+	objects.block18 = {}
+	objects.block18.body = love.physics.newBody(world, 250, 1300, "kinematic")
+	objects.block18.shape = love.physics.newRectangleShape(0, 0, 300, 50)
+	objects.block18.fixture = love.physics.newFixture(objects.block18.body, objects.block18.shape, 5)
+	
+	objects.block19 = {}
+	objects.block19.body = love.physics.newBody(world, 400, 600, "dynamic")
+	objects.block19.shape = love.physics.newRectangleShape(94, 150)
+	objects.block19.fixture = love.physics.newFixture(objects.block19.body, objects.block19.shape, 1)
+	objects.block19.body:setFixedRotation(true)
+	
+	objects.block20 = {}
+	objects.block20.body = love.physics.newBody(world, 600, 600, "dynamic")
+	objects.block20.shape = love.physics.newRectangleShape(94, 150)
+	objects.block20.fixture = love.physics.newFixture(objects.block20.body, objects.block20.shape, 1)
+	objects.block20.body:setFixedRotation(true)
+	
+	objects.block21 = {}
+	objects.block21.body = love.physics.newBody(world, 800, 600, "dynamic")
+	objects.block21.shape = love.physics.newRectangleShape(94, 150)
+	objects.block21.fixture = love.physics.newFixture(objects.block21.body, objects.block21.shape, 1)
+	objects.block21.body:setFixedRotation(true)
+	
+	Timer.addPeriodic(2.5, function() bup=true end)
+	Timer.addPeriodic(1.5, function() bup2=true end)
+	Timer.addPeriodic(2.9, function() bup3=true end)
 
 	--initial graphics setup
 	love.graphics.setBackgroundColor(104, 0, 248) --set the background color to a nice blue
@@ -187,6 +236,8 @@ function game:init()
 end
 
 function game:update(dt)
+	Timer.update(dt)
+	
 	moving = false
 	walking = false
 
@@ -196,8 +247,23 @@ function game:update(dt)
 	
 	change = yc-objects.player.body:getY()
 	
+	if bup==true then
+		objects.block19.body:applyLinearImpulse(0, -2000)
+		bup=false 
+	end
+	if bup2==true then
+		objects.block20.body:applyLinearImpulse(0, -3000)
+		bup2=false 
+		else objects.block19.body:applyForce(0, -600)
+		end
+	if bup3==true then
+		objects.block21.body:applyLinearImpulse(0, -4000)
+		bup3=false 
+	end
+	
+	if dead == false then
 	if love.keyboard.isDown("right") then
-		objects.player.body:applyForce(1000, 0)
+		objects.player.body:applyForce(600, 0)
 		right = true
 		left = false
 		anim:update(dt) 
@@ -219,7 +285,7 @@ function game:update(dt)
 	end
 		
 	if love.keyboard.isDown("left") then 
-		objects.player.body:applyForce(-1000, 0)
+		objects.player.body:applyForce(-600, 0)
 		right = false
 		left = true
 		anim2:update(dt) 
@@ -237,7 +303,6 @@ function game:update(dt)
 				down = true
 			end
 		end
-		
 	end
 		
 	if love.keyboard.isDown("up") then 
@@ -245,8 +310,6 @@ function game:update(dt)
 		fy = 0
 		if yc==-9000 then 
 		    yc = objects.player.body:getY() 
-			
-		
 		end
 
 		yc = objects.player.body:getY()
@@ -284,9 +347,21 @@ function game:update(dt)
 		standing=false
 		walking=false
 	end
+	end
 	
 	
 	fx, fy = objects.player.body:getLinearVelocity()
+	
+	if moving==false then
+		if air==false then
+		if fx<500 then
+			if fx>-500 then
+				objects.player.body:setLinearVelocity(0, fy)
+			end
+		end
+		end
+	end
+	
 		
 		if jump then
 			if fy>=0 then if fy<.8 then
@@ -333,6 +408,16 @@ function game:update(dt)
 		end
 	end
 	
+	if dead == true then
+		timeinit = love.timer.getTime()
+		anim_dead:update(dt)
+		if love.timer.getTime() - timeinit > 3 then
+			objects.player.body:setPosition(200, 200)
+			objects.player.body:setLinearVelocity(1,1)
+			dead = false
+		end
+	end
+	
 	if checker then
 			text = fx .. " " .. fy
 		else
@@ -360,6 +445,9 @@ function game:draw()
 	
 	love.graphics.draw(bk, camx-512, camy-384)
 	
+	if dead==true then
+		anim_dead:draw(objects.player.body:getX()-45, objects.player.body:getY()-40)
+	end
 	if right==true then 
 		if up then
 			love.graphics.draw(imageJumpingUp, objects.player.body:getX(), objects.player.body:getY(), objects.player.body:getAngle() , 1, 1, imageJumpingUp:getWidth()/2, imageJumpingUp:getHeight()/2+5) 
@@ -426,6 +514,13 @@ function game:draw()
 	love.graphics.polygon("fill", objects.block12.body:getWorldPoints(objects.block12.shape:getPoints()))
 	love.graphics.polygon("fill", objects.block13.body:getWorldPoints(objects.block13.shape:getPoints()))
 	love.graphics.polygon("fill", objects.block14.body:getWorldPoints(objects.block14.shape:getPoints()))
+	love.graphics.polygon("fill", objects.block15.body:getWorldPoints(objects.block15.shape:getPoints()))
+	love.graphics.polygon("fill", objects.block16.body:getWorldPoints(objects.block16.shape:getPoints()))
+	love.graphics.polygon("fill", objects.block17.body:getWorldPoints(objects.block17.shape:getPoints()))
+	love.graphics.polygon("fill", objects.block18.body:getWorldPoints(objects.block18.shape:getPoints()))
+	love.graphics.polygon("fill", objects.block19.body:getWorldPoints(objects.block19.shape:getPoints()))
+	love.graphics.polygon("fill", objects.block20.body:getWorldPoints(objects.block20.shape:getPoints()))
+	love.graphics.polygon("fill", objects.block21.body:getWorldPoints(objects.block21.shape:getPoints()))
 	
 	love.graphics.printf(text, 0, 0, 800)
 	
@@ -444,6 +539,12 @@ function game:keypressed(key, u)
    if key == "r" then
 	  objects.player.body:setPosition(200, 200)
 	  objects.player.body:setLinearVelocity(1,1)
+   end
+   if key == "d" then
+	  right = false
+	  left = false
+	  standing = false
+      dead = true
    end
 end
 
