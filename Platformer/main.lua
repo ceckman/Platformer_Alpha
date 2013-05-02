@@ -41,6 +41,7 @@ function menu:init()
 end
 function menu:update(dt)
    testmenu:update(dt)
+   TEsound.cleanup()
 end
 
 function menu:draw()
@@ -433,6 +434,7 @@ function game:update(dt)
 		end
 	end
 	
+	TEsound.cleanup()
 end
 
 function game:draw()
