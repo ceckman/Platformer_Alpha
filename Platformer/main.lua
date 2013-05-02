@@ -8,6 +8,7 @@ Timer = require "lua/timer"
 --Create our gamestates (ie levels, menu)
 local menu = {}
 local game = {}
+local credits = {}
 
 function love.load()
 	Gamestate.registerEvents() -- so state:update() will get called
@@ -29,6 +30,12 @@ function menu:init()
       name = 'Options',
       action = function()
          --nothing doing
+      end
+   }
+   testmenu:addItem{
+      name = 'Credits',
+      action = function()
+         Gamestate.switch(credits)
       end
    }
    testmenu:addItem{
@@ -72,6 +79,27 @@ dead = false
 bup = false
 bup2 = false
 bup3 = false
+
+function credits:init()
+	mbk = love.graphics.newImage("menu/m_bk.jpg")
+end
+
+
+function credits:update(dt)
+   testmenu:update(dt)
+   TEsound.cleanup()
+end
+
+function credits:draw()
+   love.graphics.draw(mbk, 0, 0)
+   love.graphics.print("PLATFORMER ALPHA Credits", 250, 100, 0, 2, 2)
+end
+
+function credits:keypressed(key)
+    if key == "escape" then
+	  Gamestate.switch(menu)
+   end
+end
 
 function game:init()
 	local img  = love.graphics.newImage("MAFRE/running.png")
