@@ -5,10 +5,8 @@ Gamestate = require "lua/gamestate"
 Menu = require 'lua/menu'
 Timer = require "lua/timer"
 
---TO DO
---timer on death
---gamestate for end screen
---more commenting
+--Glitches:
+--on a reset after death, MAFRE hangs in the air for a couple of seconds
 
 --Create our gamestates (ie levels, menu)
 local menu = {}
@@ -29,7 +27,7 @@ function menu:init()
       name = 'Start Game',
       action = function()
 		TEsound.stop("main")
-         Gamestate.switch(game)
+        Gamestate.switch(game)
       end
    }
    testmenu:addItem{
@@ -121,16 +119,20 @@ end
 
 function endgame:init()
    bsod = love.graphics.newImage("MAFRE/bsod.jpg")
+   TEsound.playLooping("level2/run.mp3", "main")
+   TEsound.playLooping("level1/level1.mp3", "main")
    TEsound.playLooping("menu/maintheme.mp3", "main")
+   Timer.add(5, function() love.event.push("quit") end)
    love.graphics.setMode(1024, 768, false, true, 0) --set the window dimensions to 1024 by 768
 end
 function endgame:update(dt)
-   --cleanup is called to loop the music
+   Timer.update(dt)
    TEsound.cleanup()
 end
 
 function endgame:draw()
-	love.graphics.draw(bsod, camx-512, camy-384)
+    love.graphics.setColor(255, 255, 255)
+	love.graphics.draw(bsod)
 end
 
 function game:init()
@@ -173,7 +175,7 @@ function game:init()
    anim_dead:setMode("loop")
 
 	--The background music, set to .3 its normal volume
-    TEsound.playLooping("level1/level1.mp3")
+    TEsound.playLooping("level1/level1.mp3", "level")
     
 	--text is used in our debugger
 	text = " "
@@ -350,8 +352,6 @@ end
 
 
 function game:update(dt)
-	Timer.update(dt)
-
 	moving = false
 	walking = false
 
@@ -362,7 +362,10 @@ function game:update(dt)
 	
 	change = yc-objects.player.body:getY()
 	
-	if objects.player.body:getX()>1200 then Gamestate.switch(endgame) end
+	if objects.player.body:getX()>1200 then
+		TEsound.stop("level")
+		Gamestate.switch(endgame)
+	end
 	
 	--Death areas
 	if objects.player.body:getX()>720 and objects.player.body:getX()<900 and objects.player.body:getY()>250 and objects.player.body:getY()<330 then
@@ -584,15 +587,16 @@ function game:update(dt)
 			first=false
 		end
 	end
-	
 	end
 	
 	if dead==true then 
 		anim_dead:update(dt)
+		Timer.add(3, function() reset() end)
 	end
 	
 	if leveronn == true then objects.block28.body:setActive(false) else objects.block28.body:setActive(true) end
 	
+	Timer.update(dt)
 	TEsound.cleanup()
 end
 
@@ -753,10 +757,8 @@ function game:draw()
 	love.graphics.setColor(50, 50, 50)
 	love.graphics.polygon("fill", objects.block27.body:getWorldPoints(objects.block27.shape:getPoints()))
 	if leveronn==false then love.graphics.polygon("fill", objects.block28.body:getWorldPoints(objects.block28.shape:getPoints())) end
-
 	love.graphics.printf(text, objects.player.body:getX(), objects.player.body:getY()-100, 800)
-	end
-	
+
 	cam:detach()
 end
 
@@ -772,10 +774,7 @@ function game:keypressed(key, u)
    end
    --Reset
    if key == "r" then
-	  dead = false
-	  leveronn = false
-	  objects.player.body:setPosition(100, 200)
-	  objects.player.body:setLinearVelocity(1,1)
+	  reset()
    end
    if key == "s" then
 	  dead = false
@@ -783,5 +782,11 @@ function game:keypressed(key, u)
 	  objects.player.body:setPosition(-150, 900)
 	  objects.player.body:setLinearVelocity(1,1)
    end
-   
+end
+
+function reset()
+	dead = false
+	leveronn = false
+	objects.player.body:setPosition(100, 200)
+	objects.player.body:setLinearVelocity(1,1)
 end
