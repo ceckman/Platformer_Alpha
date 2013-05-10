@@ -89,7 +89,6 @@ bup2 = false
 bup3 = false
 dead = false
 leveronn = false
-endgame = false
 
 function credits:init()
 	mbk = love.graphics.newImage("menu/m_bk.jpg")
@@ -118,6 +117,20 @@ function credits:keypressed(key)
     if key == "escape" then
 	  Gamestate.switch(menu)
    end
+end
+
+function endgame:init()
+   bsod = love.graphics.newImage("MAFRE/bsod.jpg")
+   TEsound.playLooping("menu/maintheme.mp3", "main")
+   love.graphics.setMode(1024, 768, false, true, 0) --set the window dimensions to 1024 by 768
+end
+function endgame:update(dt)
+   --cleanup is called to loop the music
+   TEsound.cleanup()
+end
+
+function endgame:draw()
+	love.graphics.draw(bsod, camx-512, camy-384)
 end
 
 function game:init()
@@ -152,8 +165,6 @@ function game:init()
    lever = love.graphics.newImage("MAFRE/lever.png")
    
    leveron = love.graphics.newImage("MAFRE/leveron.png")
-   
-   bsod = love.graphics.newImage("MAFRE/bsod.jpg")
    
    anim2 = newAnimation(img2, 93, 75, .15, 0)
    anim2:setMode("loop")
@@ -351,7 +362,7 @@ function game:update(dt)
 	
 	change = yc-objects.player.body:getY()
 	
-	if objects.player.body:getX()>1200 then endgame=true end
+	if objects.player.body:getX()>1200 then Gamestate.switch(endgame) end
 	
 	--Death areas
 	if objects.player.body:getX()>720 and objects.player.body:getX()<900 and objects.player.body:getY()>250 and objects.player.body:getY()<330 then
@@ -591,9 +602,6 @@ function game:draw()
 
 	love.graphics.setColor(255, 255, 255)
 	
-	if endgame == true then love.graphics.draw(bsod, camx-512, camy-384)
-	
-	else
 	love.graphics.setColor(72, 160, 14)
 	
 	love.graphics.setColor(255,255,255)
@@ -771,7 +779,7 @@ function game:keypressed(key, u)
    end
    if key == "s" then
 	  dead = false
-	  leveronn = false
+	  leveronn = true
 	  objects.player.body:setPosition(-150, 900)
 	  objects.player.body:setLinearVelocity(1,1)
    end
